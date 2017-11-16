@@ -11,7 +11,9 @@ if (isset($_POST['title']) && isset($_POST['start']) && isset($_POST['end']) && 
     $start = $_POST['start'];
     $end = $_POST['end'];
     $color = $_POST['color'];
-    $pdf = '';
+    $monto = $_POST['monto'];
+    $monto = str_replace(',', '', $monto);
+    $monto = str_replace('.', '', $monto);
     $db->insert('events', array(
         'title' => $title,
         'start' => $start,
@@ -20,11 +22,12 @@ if (isset($_POST['title']) && isset($_POST['start']) && isset($_POST['end']) && 
         'place' => $place,
         'note' => $note,
         'id_marca' => $id_marca,
+        'monto' => $monto,
     ));
     $idEvent = $db->lastInsertId();
     $serverdir = 'archivos/pdf/';
-    if (!empty($_FILES['filePdf'])) {
-        $newname = $idEvent . '_' . $_FILES['filePdf']['name'];
+    if (!empty($_FILES['filePdf']['name'])) {
+        $newname = $idEvent . '_' . utf8_decode($_FILES['filePdf']['name']);
         $fname = $newname;
         $contents = file_get_contents($_FILES['filePdf']['tmp_name']);
         $handle = fopen($serverdir . $fname, 'w');
@@ -36,8 +39,8 @@ if (isset($_POST['title']) && isset($_POST['start']) && isset($_POST['end']) && 
         $db->update('events', $update, "id = $idEvent");
     }
     $serverdir = 'archivos/xlsx/';
-    if (!empty($_FILES['fileExcel'])) {
-        $newname = $idEvent . '_' . $_FILES['fileExcel']['name'];
+    if (!empty($_FILES['fileExcel']['name'])) {
+        $newname = $idEvent . '_' . utf8_decode($_FILES['fileExcel']['name']);
         $fname = $newname;
         $contents = file_get_contents($_FILES['fileExcel']['tmp_name']);
         $handle = fopen($serverdir . $fname, 'w');
@@ -45,6 +48,19 @@ if (isset($_POST['title']) && isset($_POST['start']) && isset($_POST['end']) && 
         fclose($handle);
         $update = array(
             'file_xlsx' => $fname
+        );
+        $db->update('events', $update, "id = $idEvent");
+    }
+    $serverdir = 'archivos/img/';
+    if (!empty($_FILES['fileImg']['name'])) {
+        $newname = $idEvent . '_' . utf8_decode($_FILES['fileImg']['name']);
+        $fname = $newname;
+        $contents = file_get_contents($_FILES['fileImg']['tmp_name']);
+        $handle = fopen($serverdir . $fname, 'w');
+        fwrite($handle, $contents);
+        fclose($handle);
+        $update = array(
+            'img' => $fname
         );
         $db->update('events', $update, "id = $idEvent");
     }

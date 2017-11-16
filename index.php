@@ -10,9 +10,9 @@ $seleccion = '';
 if (!empty($_SESSION['calendario']['marcas']))
     $seleccion = $_SESSION['calendario']['marcas'];
 if ((empty($seleccion)) || ($seleccion == 'all')) {
-    $events = $db->select("SELECT id, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx FROM events");
+    $events = $db->select("SELECT id, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx, monto, img FROM events");
 } else {
-    $events = $db->select("SELECT id, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx FROM events where id_marca IN ($seleccion)");
+    $events = $db->select("SELECT id, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx, monto, img FROM events where id_marca IN ($seleccion)");
 }
 #Marcas
 $marcas = $db->select("SELECT id, descripcion, color FROM marcas where estado = 1;");
@@ -110,83 +110,99 @@ if (($seleccion == 'all') || (empty($seleccion))) {
             </div>
             <!-- /.row -->
             <!-- Modal -->
-            <div class="modal fade" id="ModalAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                        <form class="form-horizontal" method="POST" action="addEvent.php" enctype="multipart/form-data">
-                            <input type="hidden" value="" name="id_marca" id="idMarcaAdd">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel">Agregar Evento</h4>
-                            </div>
-                            <div class="modal-body">
+            <?php if (($_SESSION['usuario']['datos']['id'] != 14) && ($_SESSION['usuario']['datos']['id'] != 15)) : ?>
+                <div class="modal fade" id="ModalAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <form class="form-horizontal" method="POST" action="addEvent.php" enctype="multipart/form-data">
+                                <input type="hidden" value="" name="id_marca" id="idMarcaAdd">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">Agregar Evento</h4>
+                                </div>
+                                <div class="modal-body">
 
-                                <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Título</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" name="title" class="form-control" id="title" placeholder="Tìtulo">
+                                    <div class="form-group">
+                                        <label for="title" class="col-sm-2 control-label">Título</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" name="title" class="form-control" id="title" placeholder="Tìtulo">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="color" class="col-sm-2 control-label">Marca</label>
-                                    <div class="col-sm-10">
-                                        <select name="color" class="form-control selectAddColor" id="color">
-                                            <option value="">Seleccionar</option>
-                                            <?php foreach ($marcas as $item): ?>
-                                                <option style="color:<?= $item['color']; ?>" data-id="<?= $item['id']; ?>" value="<?= $item['color']; ?>">&#9724; <?= utf8_encode($item['descripcion']); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
+                                    <div class="form-group">
+                                        <label for="color" class="col-sm-2 control-label">Marca</label>
+                                        <div class="col-sm-10">
+                                            <select name="color" class="form-control selectAddColor" id="color">
+                                                <option value="">Seleccionar</option>
+                                                <?php foreach ($marcas as $item): ?>
+                                                    <option style="color:<?= $item['color']; ?>" data-id="<?= $item['id']; ?>" value="<?= $item['color']; ?>">&#9724; <?= utf8_encode($item['descripcion']); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Lugar</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" name="place" class="form-control" id="place" placeholder="Lugar">
+                                    <div class="form-group">
+                                        <label for="title" class="col-sm-2 control-label">Lugar</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" name="place" class="form-control" id="place" placeholder="Lugar">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Notas</label>
-                                    <div class="col-sm-10">
-                                        <textarea type="text" name="note" class="form-control" id="note"></textarea>
+                                    <div class="form-group">
+                                        <label for="monto" class="col-sm-2 control-label">Monto</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" name="monto" data-inputmask="'alias': 'decimal', 'groupSeparator': '.', 'autoGroup': true" class="form-control" id="monto" placeholder="ingrese un Monto">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group" style="display: none;">
-                                    <label for="start" class="col-sm-2 control-label">Fecha Inicio</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" name="start" class="form-control" id="start" readonly>
+                                    <div class="form-group">
+                                        <label for="note" class="col-sm-2 control-label">Notas</label>
+                                        <div class="col-sm-10">
+                                            <textarea type="text" name="note" class="form-control" id="note"></textarea>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group" style="display: none;">
-                                    <label for="end" class="col-sm-2 control-label">Fecha Fin</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" name="end" class="form-control" id="end" readonly>
+                                    <div class="form-group" style="display: none;">
+                                        <label for="start" class="col-sm-2 control-label">Fecha Inicio</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" name="start" class="form-control" id="start" readonly>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Subir Archivo PDF</label>
-                                    <div class="col-sm-10">
-                                        <div class="html5fileupload demo_pdf_new" data-form="true" data-valid-extensions="pdf,PDF" style="width: 100%;">
-                                            <input type="file" name="filePdf" />
+                                    <div class="form-group" style="display: none;">
+                                        <label for="end" class="col-sm-2 control-label">Fecha Fin</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" name="end" class="form-control" id="end" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="title" class="col-sm-2 control-label">Subir Archivo PDF</label>
+                                        <div class="col-sm-10">
+                                            <div class="html5fileupload demo_pdf_new" data-form="true" data-valid-extensions="pdf,PDF" style="width: 100%;">
+                                                <input type="file" name="filePdf" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="title" class="col-sm-2 control-label">Subir Imagen</label>
+                                        <div class="col-sm-10">
+                                            <div class="html5fileupload demo_img_new" data-form="true" data-valid-extensions="jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF" style="width: 100%;">
+                                                <input type="file" name="fileImg" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="title" class="col-sm-2 control-label">Subir Archivo Excel</label>
+                                        <div class="col-sm-10">
+                                            <div class="html5fileupload demo_xlsx_new" data-form="true" data-valid-extensions="xlsx,xls,XLSX,XLS" style="width: 100%;">
+                                                <input type="file" name="fileExcel" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Subir Archivo Excel</label>
-                                    <div class="col-sm-10">
-                                        <div class="html5fileupload demo_xlsx_new" data-form="true" data-valid-extensions="xlsx,xls,XLSX,XLS" style="width: 100%;">
-                                            <input type="file" name="fileExcel" />
-                                        </div>
-                                    </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-primary">Agregar Evento</button>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                                <button type="submit" class="btn btn-primary">Agregar Evento</button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
             <!-- Modal -->
             <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog modal-lg" role="document">
@@ -222,46 +238,92 @@ if (($seleccion == 'all') || (empty($seleccion))) {
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Notas</label>
+                                    <label for="monto" class="col-sm-2 control-label">Monto</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="monto" data-inputmask="'alias': 'decimal', 'groupSeparator': '.', 'autoGroup': true" class="form-control" id="monto" placeholder="Ingrese un Monto">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="note" class="col-sm-2 control-label">Notas</label>
                                     <div class="col-sm-10">
                                         <textarea type="text" name="note" class="form-control" id="note"></textarea>
                                     </div>
                                 </div>
-                                <div id="pdfViewer"></div>
-                                <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Subir Archivo PDF</label>
-                                    <div class="col-sm-10">
-                                        <div class="html5fileupload demo_pdf" data-id="" data-remove-done="true" data-autostart="true" data-valid-extensions="pdf,PDF" data-url="ajax/pdfUpload.php" style="width: 100%;">
-                                            <input type="file" name="file" />
+                                <div>
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <!--<li role="presentation" class="active"><a href="#outlook" aria-controls="outlook" role="tab" data-toggle="tab">Archivo Outlook</a></li>-->
+                                        <li role="presentation" class="active"><a href="#pdf" aria-controls="pdf" role="tab" data-toggle="tab">PDF</a></li>
+                                        <li role="presentation"><a href="#jpg" aria-controls="jpg" role="tab" data-toggle="tab">JPG</a></li>
+                                        <li role="presentation"><a href="#excel" aria-controls="excel" role="tab" data-toggle="tab">Excel</a></li>
+                                    </ul>
+                                    <!-- Tab panes -->
+                                    <div class="tab-content">
+                                        <!--<div role="tabpanel" class="tab-pane active" id="outlook">...</div>-->
+                                        <div role="tabpanel" class="tab-pane active" id="pdf">
+                                            <div id="pdfViewer"></div>
+                                            <?php if (($_SESSION['usuario']['datos']['id'] != 14) && ($_SESSION['usuario']['datos']['id'] != 15)) : ?>
+                                                <div class="form-group">
+                                                    <label for="title" class="col-sm-2 control-label">Subir Archivo PDF</label>
+                                                    <div class="col-sm-10">
+                                                        <div class="html5fileupload demo_pdf" data-id="" data-remove-done="true" data-autostart="true" data-valid-extensions="pdf,PDF" data-url="ajax/pdfUpload.php" style="width: 100%;">
+                                                            <input type="file" name="file" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="jpg">
+                                            <div style="width: 100%;" id="viewImg">
+
+                                            </div>
+                                            <?php if (($_SESSION['usuario']['datos']['id'] != 14) && ($_SESSION['usuario']['datos']['id'] != 15)) : ?>
+                                                <div class="form-group">
+                                                    <label for="title" class="col-sm-2 control-label">Subir Imagen</label>
+                                                    <div class="col-sm-10">
+                                                        <div class="html5fileupload demo_img" data-id="" data-remove-done="true" data-autostart="true" data-valid-extensions="jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF" data-url="ajax/imgUpload.php" style="width: 100%;">
+                                                            <input type="file" name="file" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="excel">
+                                            <div class="form-group"  style="display: none;" id="excelDiv">
+                                                <div class="col-sm-10">
+                                                    <p>Archivo de Excel: <a href="#" id="excelLink"></a></p>
+                                                </div>
+                                            </div>
+                                            <?php if (($_SESSION['usuario']['datos']['id'] != 14) && ($_SESSION['usuario']['datos']['id'] != 15)) : ?>
+                                                <div class="form-group">
+                                                    <label for="title" class="col-sm-2 control-label">Subir Archivo Excel</label>
+                                                    <div class="col-sm-10">
+                                                        <div class="html5fileupload demo_xlsx" data-id="" data-remove-done="true" data-autostart="true" data-valid-extensions="xlsx,xls,XLSX,XLS" data-url="ajax/xlsxUpload.php" style="width: 100%;">
+                                                            <input type="file" name="file" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group"  style="display: none;" id="excelDiv">
-                                    <div class="col-sm-10">
-                                        <p>Archivo de Excel: <a href="#" id="excelLink"></a></p>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="title" class="col-sm-2 control-label">Subir Archivo Excel</label>
-                                    <div class="col-sm-10">
-                                        <div class="html5fileupload demo_xlsx" data-id="" data-remove-done="true" data-autostart="true" data-valid-extensions="xlsx,xls,XLSX,XLS" data-url="ajax/xlsxUpload.php" style="width: 100%;">
-                                            <input type="file" name="file" />
+                                <?php if (($_SESSION['usuario']['datos']['id'] != 14) && ($_SESSION['usuario']['datos']['id'] != 15)) : ?>
+                                    <div class="form-group"> 
+                                        <div class="col-sm-offset-2 col-sm-10">
+                                            <div class="checkbox">
+                                                <label class="text-danger"><input type="checkbox" name="delete"> Eliminar Evento</label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-group"> 
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <div class="checkbox">
-                                            <label class="text-danger"><input type="checkbox" name="delete"> Eliminar Evento</label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <?php endif; ?>
                                 <input type="hidden" name="id" class="form-control" id="id">
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                            </div>
+                            <?php if (($_SESSION['usuario']['datos']['id'] != 14) && ($_SESSION['usuario']['datos']['id'] != 15)) : ?>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                </div>
+                            <?php endif; ?>
                         </form>
                     </div>
                 </div>
@@ -270,6 +332,7 @@ if (($seleccion == 'all') || (empty($seleccion))) {
         <!-- /.container -->
         <!-- jQuery Version 1.11.1 -->
         <script src="js/jquery.js"></script>
+        <script src="plugins/input-mask/jquery.inputmask.js"></script>
         <!-- Bootstrap Core JavaScript -->
         <script src="js/bootstrap.min.js"></script>
         <!-- FullCalendar -->
@@ -279,8 +342,10 @@ if (($seleccion == 'all') || (empty($seleccion))) {
         <script src="plugins/pdfobject-master/pdfobject.min.js"></script>
         <!-- html5fileupload -->
         <script src="plugins/html5fileupload/html5fileupload.min.js"></script>
-        <script>
+        <script src="plugins/input-mask/jquery.inputmask.js"></script>
+        <script type="text/javascript">
             $(document).ready(function () {
+                $("[data-inputmask]").inputmask();
                 var selected = new Array();
                 $('#calendar').fullCalendar({
                     header: {
@@ -308,6 +373,7 @@ if (($seleccion == 'all') || (empty($seleccion))) {
                             $('#ModalEdit #title').val(event.title);
                             $('#ModalEdit #color').val(event.color);
                             $('#ModalEdit #place').val(event.place);
+                            $('#ModalEdit #monto').val(event.monto);
                             $('#ModalEdit #note').val(event.note);
                             $('#ModalEdit #idMarcaEdit').val(event.id_marca);
                             $('#ModalEdit').modal('show');
@@ -320,11 +386,22 @@ if (($seleccion == 'all') || (empty($seleccion))) {
                                 $("#excelLink").attr("download", event.xlsx);
                                 $("#excelLink").html('<img src="img/logo-excel.png" class="img-responsive" style="width: 35px; display: inline-block;"> ' + event.xlsx);
                             }
+                            if (event.img.trim().length > 0) {
+                                var img = '<img src="archivos/img/' + event.img + '" style="width: 100%;" alt="' + event.img + '">';
+                                $('#viewImg').html(img);
+                            }
                             $('.html5fileupload.demo_pdf').html5fileupload({
                                 data: {id: event.id},
                                 onAfterStartSuccess: function (response) {
                                     if (response['result'] == true)
                                         PDFObject.embed("archivos/pdf/" + response['filename'], "#pdfViewer");
+                                }
+                            });
+                            $('.html5fileupload.demo_img').html5fileupload({
+                                data: {id: event.id},
+                                onAfterStartSuccess: function (response) {
+                                    var img = '<img src="archivos/img/' + response['filename'] + '" style="width: 100%;" alt="' + response['filename'] + '">';
+                                    $('#viewImg').html(img);
                                 }
                             });
                             $('.html5fileupload.demo_xlsx').html5fileupload({
@@ -364,12 +441,14 @@ foreach ($events as $event):
                                 id_marca: '<?php echo $event['id_marca']; ?>',
                                 title: '<?php echo trim(utf8_encode($event['title'])); ?>',
                                 place: '<?php echo trim(utf8_encode($event['place'])); ?>',
-                                note: '<?php echo trim(utf8_encode($event['note'])); ?>',
+                                monto: '<?php echo (!empty($event['monto'])) ? number_format($event['monto'], 0, ',', '.') : '0,000'; ?>',
+                                note: '<?php echo trim(preg_replace('/\s+/', ' ', utf8_encode($event['note']))); ?>',
                                 start: '<?php echo $start; ?>',
                                 end: '<?php echo $end; ?>',
                                 color: '<?php echo $event['color']; ?>',
-                                pdf: '<?php echo $event['file_pdf']; ?>',
-                                xlsx: '<?php echo $event['file_xlsx']; ?>',
+                                pdf: '<?php echo utf8_encode($event['file_pdf']); ?>',
+                                xlsx: '<?php echo utf8_encode($event['file_xlsx']); ?>',
+                                img: '<?php echo utf8_encode($event['img']); ?>',
                             },
 <?php endforeach; ?>
                     ]
@@ -484,6 +563,8 @@ foreach ($events as $event):
                     $(":checkbox[value='12']").prop('checked', true);
                 }
                 $('.html5fileupload.demo_pdf_new').html5fileupload();
+                $('.html5fileupload.demo_img_new').html5fileupload();
+                $('.html5fileupload.demo_img').html5fileupload();
                 $('.html5fileupload.demo_xlsx_new').html5fileupload();
             });
         </script>

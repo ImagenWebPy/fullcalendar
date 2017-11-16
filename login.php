@@ -16,6 +16,7 @@ if (!empty($_POST)) {
     $count = $sth->rowCount();
     if ($count > 0) {
         $_SESSION['calendario']['login'] = TRUE;
+        $_SESSION['usuario']['datos'] = array('id' => $data['id'], 'nombre' => $data['nombre']);
         header('Location: index.php');
     }
 }

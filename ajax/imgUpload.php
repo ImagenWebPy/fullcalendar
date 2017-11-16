@@ -6,7 +6,7 @@ $db = new Database(DB_TYPE, DB_HOST, DB_NAME, DB_USER, DB_PASS);
 if (!empty($_POST)) {
     $id = $_POST['data']['id'];
     $error = false;
-    $dir = '../archivos/xlsx/';
+    $dir = '../archivos/img/';
     $serverdir = $dir;
     $tmp = explode(',', $_POST['file']);
     $file = base64_decode($tmp[1]);
@@ -22,7 +22,7 @@ if (!empty($_POST)) {
         "filename" => $filename
     );
     $update = array(
-        'file_xlsx' => $filename
+        'img' => $filename
     );
     $db->update('events', $update, "id = $id");
     echo json_encode($response);

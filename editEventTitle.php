@@ -2,10 +2,7 @@
 
 require_once('bdd.php');
 if (isset($_POST['delete']) && isset($_POST['id'])) {
-
-
     $id = $_POST['id'];
-
     $sql = "DELETE FROM events WHERE id = $id";
     $query = $bdd->prepare($sql);
     if ($query == false) {
@@ -24,10 +21,10 @@ if (isset($_POST['delete']) && isset($_POST['id'])) {
     $place = $_POST['place'];
     $note = $_POST['note'];
     $color = $_POST['color'];
-
-    $sql = "UPDATE events SET  title = '$title', color = '$color', place = '$place', note = '$note', id_marca = '$id_marca' WHERE id = $id ";
-
-
+    $monto = $_POST['monto'];
+    $monto = str_replace(',', '', $monto);
+    $monto = str_replace('.', '', $monto);
+    $sql = "UPDATE events SET  title = '$title', color = '$color', place = '$place', note = '$note', id_marca = '$id_marca', monto = '$monto' WHERE id = $id ";
     $query = $bdd->prepare($sql);
     if ($query == false) {
         print_r($bdd->errorInfo());

@@ -13,6 +13,7 @@ if (!empty($_POST)) {
     $ext = explode('.', $_POST['filename']);
     $extension = strtolower(end($ext));
     $filename = $id . '_' . $_POST['name'] . '.' . $extension;
+    $filename = utf8_decode($filename);
     $handle = fopen($serverdir . $filename, 'w');
     fwrite($handle, $file);
     fclose($handle);
