@@ -10,12 +10,14 @@ $seleccion = '';
 if (!empty($_SESSION['calendario']['marcas']))
     $seleccion = $_SESSION['calendario']['marcas'];
 if ((empty($seleccion)) || ($seleccion == 'all')) {
-    $events = $db->select("SELECT id, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx, monto, img FROM events");
+    $events = $db->select("SELECT id, id_moneda, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx, monto, img FROM events");
 } else {
-    $events = $db->select("SELECT id, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx, monto, img FROM events where id_marca IN ($seleccion)");
+    $events = $db->select("SELECT id, id_moneda, title, start, end, color, place, note, id_marca, file_pdf, file_xlsx, monto, img FROM events where id_marca IN ($seleccion)");
 }
 #Marcas
 $marcas = $db->select("SELECT id, descripcion, color FROM marcas where estado = 1;");
+#Monedas
+$moneda = $db->select("SELECT id, descripcion, simbolo FROM moneda where estado = 1;");
 if (($seleccion == 'all') || (empty($seleccion))) {
     $selJquery = 0;
 } else {
@@ -121,7 +123,6 @@ if (($seleccion == 'all') || (empty($seleccion))) {
                                     <h4 class="modal-title" id="myModalLabel">Agregar Evento</h4>
                                 </div>
                                 <div class="modal-body">
-
                                     <div class="form-group">
                                         <label for="title" class="col-sm-2 control-label">Título</label>
                                         <div class="col-sm-10">
@@ -146,9 +147,22 @@ if (($seleccion == 'all') || (empty($seleccion))) {
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="monto" class="col-sm-2 control-label">Monto</label>
-                                        <div class="col-sm-10">
-                                            <input type="text" name="monto" data-inputmask="'alias': 'decimal', 'groupSeparator': '.', 'autoGroup': true" class="form-control" id="monto" placeholder="ingrese un Monto">
+                                        <div class="col-md-6">
+                                            <label for="monto" class="col-sm-2 control-label">Moneda</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control" name="moneda" id="moneda">
+                                                    <option value="">Moneda</option>
+                                                    <?php foreach ($moneda as $item): ?>
+                                                        <option value="<?= $item['id']; ?>"><?= $item['simbolo']; ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="monto" class="col-sm-2 control-label">Monto</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" name="monto" data-inputmask="'alias': 'decimal', 'groupSeparator': '.', 'autoGroup': true" class="form-control" id="monto" placeholder="ingrese un Monto">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -238,9 +252,22 @@ if (($seleccion == 'all') || (empty($seleccion))) {
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="monto" class="col-sm-2 control-label">Monto</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" name="monto" data-inputmask="'alias': 'decimal', 'groupSeparator': '.', 'autoGroup': true" class="form-control" id="monto" placeholder="Ingrese un Monto">
+                                    <div class="col-md-6">
+                                        <label for="monto" class="col-sm-2 control-label">Moneda</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="moneda" id="moneda">
+                                                <option value="">Moneda</option>
+                                                <?php foreach ($moneda as $item): ?>
+                                                    <option value="<?= $item['id']; ?>"><?= $item['simbolo']; ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="monto" class="col-sm-2 control-label">Monto</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" name="monto" data-inputmask="'alias': 'decimal', 'groupSeparator': '.', 'autoGroup': true" class="form-control" id="monto" placeholder="ingrese un Monto">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -372,6 +399,7 @@ if (($seleccion == 'all') || (empty($seleccion))) {
                             $('#ModalEdit #id').val(event.id);
                             $('#ModalEdit #title').val(event.title);
                             $('#ModalEdit #color').val(event.color);
+                            $('#ModalEdit #moneda').val(event.moneda);
                             $('#ModalEdit #place').val(event.place);
                             $('#ModalEdit #monto').val(event.monto);
                             $('#ModalEdit #note').val(event.note);
@@ -439,6 +467,7 @@ foreach ($events as $event):
                             {
                                 id: '<?php echo $event['id']; ?>',
                                 id_marca: '<?php echo $event['id_marca']; ?>',
+                                moneda: '<?php echo $event['id_moneda']; ?>',
                                 title: '<?php echo trim(utf8_encode($event['title'])); ?>',
                                 place: '<?php echo trim(utf8_encode($event['place'])); ?>',
                                 monto: '<?php echo (!empty($event['monto'])) ? number_format($event['monto'], 0, ',', '.') : '0,000'; ?>',

@@ -21,10 +21,11 @@ if (isset($_POST['delete']) && isset($_POST['id'])) {
     $place = $_POST['place'];
     $note = $_POST['note'];
     $color = $_POST['color'];
+    $moneda = $_POST['moneda'];
     $monto = $_POST['monto'];
     $monto = str_replace(',', '', $monto);
     $monto = str_replace('.', '', $monto);
-    $sql = "UPDATE events SET  title = '$title', color = '$color', place = '$place', note = '$note', id_marca = '$id_marca', monto = '$monto' WHERE id = $id ";
+    $sql = "UPDATE events SET  id_moneda = '$moneda', title = '$title', color = '$color', place = '$place', note = '$note', id_marca = '$id_marca', monto = '$monto' WHERE id = $id ";
     $query = $bdd->prepare($sql);
     if ($query == false) {
         print_r($bdd->errorInfo());

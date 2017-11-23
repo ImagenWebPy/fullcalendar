@@ -11,10 +11,12 @@ if (isset($_POST['title']) && isset($_POST['start']) && isset($_POST['end']) && 
     $start = $_POST['start'];
     $end = $_POST['end'];
     $color = $_POST['color'];
+    $moneda = $_POST['moneda'];
     $monto = $_POST['monto'];
     $monto = str_replace(',', '', $monto);
     $monto = str_replace('.', '', $monto);
     $db->insert('events', array(
+        'id_moneda' => $moneda,
         'title' => $title,
         'start' => $start,
         'end' => $end,
